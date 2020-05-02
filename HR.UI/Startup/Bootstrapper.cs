@@ -15,9 +15,16 @@ namespace HR.UI.Startup
             builder.RegisterType<HrDbContext>().AsSelf();
             builder.RegisterType<MainWindow>().AsSelf();
             builder.RegisterType<MainViewModel>().AsSelf();
+            builder.RegisterType<NavigationViewModel>()
+                .As<INavigationViewModel>();
+            builder.RegisterType<CandidateDetailViewModel>()
+                .As<ICandidateDetailViewModel>();
+
             builder.RegisterType<CandidateDataService>()
                 .As<ICandidateDataService>();
-
+            builder.RegisterType<LookupDataService>()
+                .AsImplementedInterfaces();
+            
             return builder.Build();
         }
     }

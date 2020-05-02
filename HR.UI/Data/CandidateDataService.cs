@@ -25,11 +25,11 @@ namespace HR.UI.Data
             }    
         }
 
-        public async Task<List<Candidate>> GetAllAsync()
+        public async Task<Candidate> GetByIdAsync(int candidateId)
         {
             using (var ctx = _contextCreator())
             {
-                return await ctx.Candidates.AsNoTracking().ToListAsync();
+                return await ctx.Candidates.AsNoTracking().SingleAsync(c => c.Id == candidateId);
 
                 /* Visual representation of async work
                  * 

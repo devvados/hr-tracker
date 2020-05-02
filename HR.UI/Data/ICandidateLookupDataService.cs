@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 
 namespace HR.UI.Data
 {
-    public interface ICandidateDataService
+    public interface ICandidateLookupDataService
     {
-        Task<Candidate> GetByIdAsync(int candidateId);
+        Task<IEnumerable<LookupItem>> GetCandidateAsync();
     }
 }

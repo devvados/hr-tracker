@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HR.UI"
+        xmlns:view="clr-namespace:HR.UI.View"
         mc:Ignorable="d"
         Title="HR" Height="450" Width="800" FontSize="20">
     <Grid>
@@ -11,38 +12,7 @@
             <ColumnDefinition Width="200"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <ListView Grid.Column="0" 
-                  ItemsSource="{Binding Candidates}" 
-                  SelectedItem="{Binding SelectedCandidate,Mode=TwoWay}" 
-                  DisplayMemberPath="Name"/>
-        <Grid Grid.Column="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition/>
-            </Grid.RowDefinitions>
-            <Label Content="Name" Margin="10 10 10 0"/>
-            <TextBox Grid.Row="1" 
-                     Text="{Binding SelectedCandidate.Name, 
-                            Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                     Margin="10 0 10 10"/>
-
-            <Label Grid.Row="2" Content="Last Name" Margin="10 0 10 0"/>
-            <TextBox Grid.Row="3" 
-                     Text="{Binding SelectedCandidate.LastName, 
-                            Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                     Margin="10 0 10 10"/>
-
-            <Label Grid.Row="4" Content="Email" Margin="10 0 10 0"/>
-            <TextBox Grid.Row="5" 
-                     Text="{Binding SelectedCandidate.Email, 
-                            Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                     Margin="10 0 10 10"/>
-
-        </Grid>
+        <view:NavigationView DataContext="{Binding NavigationViewModel}"/>
+        <view:CandidateDetailView Grid.Column="1" DataContext="{Binding CandidateDetailViewModel}"/>
     </Grid>
 </Window>
