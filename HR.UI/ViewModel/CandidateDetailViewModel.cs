@@ -1,6 +1,7 @@
 ﻿using HR.Model;
 using HR.UI.Data;
 using HR.UI.Event;
+using HR.UI.Wrapper;
 using Prism.Commands;
 using Prism.Events;
 using System;
@@ -13,6 +14,7 @@ namespace HR.UI.ViewModel
     {
         private ICandidateDataService _dataService;
         private IEventAggregator _eventAggregator;
+        private CandidateWrapper _candidate;
 
         public CandidateDetailViewModel(ICandidateDataService dataService,
             IEventAggregator eventAggregator)
@@ -26,15 +28,42 @@ namespace HR.UI.ViewModel
             SaveCommand = new DelegateCommand(OnSaveExecute, OnSaveCanExecute);
         }
 
+        public async Task LoadAsync(int candidateId)
+        {
+            var candidate = await _dataService.GetByIdAsync(candidateId);
+
+            //subscribe save command availability to object state change
+            Candidate = new CandidateWrapper(candidate);
+            Candidate.PropertyChanged += (s, e) =>
+              {
+                  if (e.PropertyName == nameof(Candidate.HasErrors))
+                  {
+                      ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
+                  }
+              };
+        }
+
+        public CandidateWrapper Candidate
+        {
+            get { return _candidate; }
+            private set
+            {
+                _candidate = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ICommand SaveCommand { get; }
+
         private bool OnSaveCanExecute()
         {
-            //check if candidate is valid
-            return true;
+            //check if candidate has changes
+            return Candidate!=null  && !Candidate.HasErrors;
         }
 
         private async void OnSaveExecute()
         {
-            await _dataService.SaveAsync(Candidate);
+            await _dataService.SaveAsync(Candidate.Model);
             _eventAggregator.GetEvent<AfterCandidateSavedEvent>()
                 .Publish(new AfterCandidateSavedEventArgs
                 {
@@ -47,24 +76,5 @@ namespace HR.UI.ViewModel
         {
             await LoadAsync(candidateId);
         }
-
-        public async Task LoadAsync(int candidateId)
-        {
-            Candidate = await _dataService.GetByIdAsync(candidateId);
-        }
-
-        private Candidate _candidate;
-
-        public Candidate Candidate
-        {
-            get { return _candidate; }
-            private set
-            {
-                _candidate = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public ICommand SaveCommand { get; }
     }
 }

@@ -31,7 +31,7 @@
 
         <Label Grid.Row="4" Content="Email" Margin="10 0 10 0"/>
         <TextBox Grid.Row="5" 
-                     Text="{Binding Candidate.Email, 
+                     Text="{Binding Candidate.Email, TargetNullValue='',
                             Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                      Margin="10 0 10 10"/>
 
