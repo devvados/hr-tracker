@@ -39,5 +39,15 @@ namespace HR.UI.Data
                  */
             }
         }
+
+        public async Task SaveAsync(Candidate candidate)
+        {
+            using(var ctx = _contextCreator())
+            {
+                ctx.Candidates.Attach(candidate);
+                ctx.Entry(candidate).State = EntityState.Modified;
+                await ctx.SaveChangesAsync();
+            }
+        }
     }
 }

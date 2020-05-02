@@ -1,9 +1,11 @@
 ﻿using HR.Model;
 using HR.UI.Data;
 using HR.UI.Event;
+using Prism.Commands;
 using Prism.Events;
 using System;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace HR.UI.ViewModel
 {
@@ -20,6 +22,25 @@ namespace HR.UI.ViewModel
             _eventAggregator.GetEvent<OpenCandidateDetailViewEvent>()
                 .Subscribe(OnOpenCandidateDetailView);
 
+            //parameter can be added as modifying method to generic
+            SaveCommand = new DelegateCommand(OnSaveExecute, OnSaveCanExecute);
+        }
+
+        private bool OnSaveCanExecute()
+        {
+            //check if candidate is valid
+            return true;
+        }
+
+        private async void OnSaveExecute()
+        {
+            await _dataService.SaveAsync(Candidate);
+            _eventAggregator.GetEvent<AfterCandidateSavedEvent>()
+                .Publish(new AfterCandidateSavedEventArgs
+                {
+                    Id = Candidate.Id,
+                    DisplayMember = $"{Candidate.Name} {Candidate.LastName}"
+                });
         }
 
         private async void OnOpenCandidateDetailView(int candidateId)
@@ -43,5 +64,7 @@ namespace HR.UI.ViewModel
                 OnPropertyChanged();
             }
         }
+
+        public ICommand SaveCommand { get; }
     }
 }

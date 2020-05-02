@@ -21,7 +21,15 @@ namespace HR.UI.ViewModel
         {
             _candidateLookupService = candidateLookupService;
             _eventAggregator = eventAggregator;
-            Candidates = new ObservableCollection<LookupItem>();
+            Candidates = new ObservableCollection<NavigationItemViewModel>();
+            _eventAggregator.GetEvent<AfterCandidateSavedEvent>()
+                .Subscribe(AfterCandidateSaved);
+        }
+
+        private void AfterCandidateSaved(AfterCandidateSavedEventArgs obj)
+        {
+            var lookupItem = Candidates.Single(l => l.Id == obj.Id);
+            lookupItem.DisplayMember = obj.DisplayMember; 
         }
 
         public async Task LoadAsync()
@@ -30,15 +38,15 @@ namespace HR.UI.ViewModel
             Candidates.Clear();
             foreach (var item in lookup)
             {
-                Candidates.Add(item);
+                Candidates.Add(new NavigationItemViewModel(item.Id,item.DisplayMember));
             }
         }
 
-        public ObservableCollection<LookupItem> Candidates { get; }
+        public ObservableCollection<NavigationItemViewModel> Candidates { get; }
 
-        private LookupItem _selectedCandidate;
+        private NavigationItemViewModel _selectedCandidate;
 
-        public LookupItem SelectedCandidate
+        public NavigationItemViewModel SelectedCandidate
         {
             get { return _selectedCandidate; }
             set { 
