@@ -3,6 +3,7 @@ using Autofac.Core;
 using HR.DataAccess;
 using HR.UI.Data;
 using HR.UI.ViewModel;
+using Prism.Events;
 
 namespace HR.UI.Startup
 {
@@ -12,7 +13,11 @@ namespace HR.UI.Startup
         {
             var builder = new ContainerBuilder();
 
+            builder.RegisterType<EventAggregator>().As<IEventAggregator>()
+                .SingleInstance();
+
             builder.RegisterType<HrDbContext>().AsSelf();
+
             builder.RegisterType<MainWindow>().AsSelf();
             builder.RegisterType<MainViewModel>().AsSelf();
             builder.RegisterType<NavigationViewModel>()
