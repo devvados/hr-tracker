@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HR.UI.Data
+namespace HR.UI.Data.Lookups
 {
     public class LookupDataService : ICandidateLookupDataService
     {

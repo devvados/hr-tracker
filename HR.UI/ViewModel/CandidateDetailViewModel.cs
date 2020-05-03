@@ -1,5 +1,6 @@
 ﻿using HR.Model;
 using HR.UI.Data;
+using HR.UI.Data.Repositories;
 using HR.UI.Event;
 using HR.UI.Wrapper;
 using Prism.Commands;
@@ -12,17 +13,16 @@ namespace HR.UI.ViewModel
 {
     class CandidateDetailViewModel : ViewModelBase, ICandidateDetailViewModel
     {
-        private ICandidateDataService _dataService;
+        private ICandidateRepository _candidateRepository;
         private IEventAggregator _eventAggregator;
         private CandidateWrapper _candidate;
+        private bool _hasChanges;
 
-        public CandidateDetailViewModel(ICandidateDataService dataService,
+        public CandidateDetailViewModel(ICandidateRepository candidateRepository,
             IEventAggregator eventAggregator)
         {
-            _dataService = dataService;
+            _candidateRepository = candidateRepository;
             _eventAggregator = eventAggregator;
-            _eventAggregator.GetEvent<OpenCandidateDetailViewEvent>()
-                .Subscribe(OnOpenCandidateDetailView);
 
             //parameter can be added as modifying method to generic
             SaveCommand = new DelegateCommand(OnSaveExecute, OnSaveCanExecute);
@@ -30,12 +30,16 @@ namespace HR.UI.ViewModel
 
         public async Task LoadAsync(int candidateId)
         {
-            var candidate = await _dataService.GetByIdAsync(candidateId);
+            var candidate = await _candidateRepository.GetByIdAsync(candidateId);
 
             //subscribe save command availability to object state change
             Candidate = new CandidateWrapper(candidate);
             Candidate.PropertyChanged += (s, e) =>
               {
+                  if(HasChanges)
+                  {
+                      HasChanges = _candidateRepository.HasChanges();
+                  }
                   if (e.PropertyName == nameof(Candidate.HasErrors))
                   {
                       ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
@@ -51,30 +55,40 @@ namespace HR.UI.ViewModel
                 _candidate = value;
                 OnPropertyChanged();
             }
+        }       
+
+        public bool HasChanges
+        {
+            get { return _hasChanges; }
+            set {
+                if (_hasChanges != value)
+                {
+                    _hasChanges = value;
+                    OnPropertyChanged();
+                    ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
+                }
+            }
         }
+
 
         public ICommand SaveCommand { get; }
 
         private bool OnSaveCanExecute()
         {
-            //check if candidate has changes
-            return Candidate!=null  && !Candidate.HasErrors;
+            return Candidate!=null  && !Candidate.HasErrors && HasChanges;
         }
 
         private async void OnSaveExecute()
         {
-            await _dataService.SaveAsync(Candidate.Model);
+            await _candidateRepository.SaveAsync();
+
+            HasChanges = _candidateRepository.HasChanges();
             _eventAggregator.GetEvent<AfterCandidateSavedEvent>()
                 .Publish(new AfterCandidateSavedEventArgs
                 {
                     Id = Candidate.Id,
                     DisplayMember = $"{Candidate.Name} {Candidate.LastName}"
                 });
-        }
-
-        private async void OnOpenCandidateDetailView(int candidateId)
-        {
-            await LoadAsync(candidateId);
         }
     }
 }

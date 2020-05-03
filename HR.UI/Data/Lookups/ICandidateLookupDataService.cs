@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace HR.UI.Data
+namespace HR.UI.Data.Lookups
 {
     public interface ICandidateLookupDataService
     {

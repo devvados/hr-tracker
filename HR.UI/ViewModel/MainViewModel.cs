@@ -1,21 +1,31 @@
-﻿using HR.Model;
-using HR.UI.Data;
+﻿using HR.UI.Event;
+using HR.UI.View.Services;
+using Prism.Events;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HR.UI.ViewModel
 {
     public class MainViewModel : ViewModelBase
     {
+        private ICandidateDetailViewModel _candidateDetailViewModel;
+        private IEventAggregator _eventAggregator;
+        private Func<ICandidateDetailViewModel> _candidateDetailViewModelCreator;
+        private IMessageDialogService _messageDialogService;
+
         public MainViewModel(INavigationViewModel navigationViewModel,
-            ICandidateDetailViewModel candidateDetailViewModel)
+            Func<ICandidateDetailViewModel> candidateDetailViewModelCreator,
+            IEventAggregator eventAggregator,
+            IMessageDialogService messageDialogService)
         {
+            _eventAggregator = eventAggregator;
+            _candidateDetailViewModelCreator = candidateDetailViewModelCreator;
+            _messageDialogService = messageDialogService;
+
+            _eventAggregator.GetEvent<OpenCandidateDetailViewEvent>()
+                .Subscribe(OnOpenCandidateDetailView);
+
             NavigationViewModel = navigationViewModel;
-            CandidateDetailViewModel = candidateDetailViewModel;
         }
 
         public async Task LoadAsync()
@@ -24,6 +34,29 @@ namespace HR.UI.ViewModel
         }
 
         public INavigationViewModel NavigationViewModel { get; }
-        public ICandidateDetailViewModel CandidateDetailViewModel { get; }
+
+        public ICandidateDetailViewModel CandidateDetailViewModel
+        {
+            get { return _candidateDetailViewModel; }
+            private set 
+            { 
+                _candidateDetailViewModel = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private async void OnOpenCandidateDetailView(int candidateId)
+        {
+            if(CandidateDetailViewModel!=null &&  CandidateDetailViewModel.HasChanges)
+            {
+                var result = _messageDialogService.ShowOkCancelDialog("You have made changes! Navigate away?", "Question");
+                if(result  == MessageDialogResult.Cancel)
+                {
+                    return;
+                }
+            }
+            CandidateDetailViewModel = _candidateDetailViewModelCreator();
+            await CandidateDetailViewModel.LoadAsync(candidateId);
+        }
     }
 }

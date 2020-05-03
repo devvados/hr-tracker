@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace HR.UI.Data
+namespace HR.UI.Data.Repositories
 {
-    public interface ICandidateDataService
+    public interface ICandidateRepository
     {
         Task<Candidate> GetByIdAsync(int candidateId);
-        Task SaveAsync(Candidate candidate);
+        Task SaveAsync();
+        bool HasChanges();
     }
 }

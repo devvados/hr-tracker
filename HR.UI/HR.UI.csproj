@@ -85,8 +85,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Data\ICandidateLookupDataService.cs" />
-    <Compile Include="Data\LookupDataService.cs" />
+    <Compile Include="Data\Lookups\ICandidateLookupDataService.cs" />
+    <Compile Include="Data\Lookups\LookupDataService.cs" />
     <Compile Include="Event\AfterCandidateSavedEvent.cs" />
     <Compile Include="Event\OpenCandidateDetailViewEvent.cs" />
     <Compile Include="Startup\Bootstrapper.cs" />
@@ -103,6 +103,8 @@
     <Compile Include="View\NavigationView.xaml.cs">
       <DependentUpon>NavigationView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\Services\IMessageDialogService.cs" />
+    <Compile Include="View\Services\MessageDialogService.cs" />
     <Compile Include="Wrapper\CandidateWrapper.cs" />
     <Compile Include="Wrapper\ModelWrapper.cs" />
     <Compile Include="Wrapper\NotifyDataErrorInfoBase.cs" />
@@ -114,8 +116,8 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Data\CandidateDataService.cs" />
-    <Compile Include="Data\ICandidateDataService.cs" />
+    <Compile Include="Data\Repositories\CandidateRepository.cs" />
+    <Compile Include="Data\Repositories\ICandidateRepository.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

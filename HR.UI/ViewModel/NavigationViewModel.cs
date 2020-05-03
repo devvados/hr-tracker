@@ -1,5 +1,6 @@
 ﻿using HR.Model;
 using HR.UI.Data;
+using HR.UI.Data.Lookups;
 using HR.UI.Event;
 using Prism.Events;
 using System;
@@ -38,28 +39,10 @@ namespace HR.UI.ViewModel
             Candidates.Clear();
             foreach (var item in lookup)
             {
-                Candidates.Add(new NavigationItemViewModel(item.Id,item.DisplayMember));
+                Candidates.Add(new NavigationItemViewModel(item.Id,item.DisplayMember, _eventAggregator));
             }
         }
 
         public ObservableCollection<NavigationItemViewModel> Candidates { get; }
-
-        private NavigationItemViewModel _selectedCandidate;
-
-        public NavigationItemViewModel SelectedCandidate
-        {
-            get { return _selectedCandidate; }
-            set { 
-                _selectedCandidate = value;
-                OnPropertyChanged();
-
-                if(_selectedCandidate !=null)
-                {
-                    _eventAggregator.GetEvent<OpenCandidateDetailViewEvent>()
-                        .Publish(_selectedCandidate.Id);
-                }
-            }
-        }
-
     }
 }
