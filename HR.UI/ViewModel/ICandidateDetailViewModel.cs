@@ -4,7 +4,7 @@ namespace HR.UI.ViewModel
 {
     public interface ICandidateDetailViewModel
     {
-        Task LoadAsync(int candidateId);
+        Task LoadAsync(int? candidateId);
         bool HasChanges { get; }
     }
 }

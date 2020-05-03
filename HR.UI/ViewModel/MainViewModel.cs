@@ -1,8 +1,10 @@
 ﻿using HR.UI.Event;
 using HR.UI.View.Services;
+using Prism.Commands;
 using Prism.Events;
 using System;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace HR.UI.ViewModel
 {
@@ -25,6 +27,8 @@ namespace HR.UI.ViewModel
             _eventAggregator.GetEvent<OpenCandidateDetailViewEvent>()
                 .Subscribe(OnOpenCandidateDetailView);
 
+            CreateNewCandidateCommand = new DelegateCommand(OnCreateNewCandidateExecute);
+
             NavigationViewModel = navigationViewModel;
         }
 
@@ -32,6 +36,8 @@ namespace HR.UI.ViewModel
         {
             await NavigationViewModel.LoadAsync();
         }
+
+        public ICommand CreateNewCandidateCommand { get; }
 
         public INavigationViewModel NavigationViewModel { get; }
 
@@ -45,7 +51,7 @@ namespace HR.UI.ViewModel
             }
         }
 
-        private async void OnOpenCandidateDetailView(int candidateId)
+        private async void OnOpenCandidateDetailView(int? candidateId)
         {
             if(CandidateDetailViewModel!=null &&  CandidateDetailViewModel.HasChanges)
             {
@@ -57,6 +63,11 @@ namespace HR.UI.ViewModel
             }
             CandidateDetailViewModel = _candidateDetailViewModelCreator();
             await CandidateDetailViewModel.LoadAsync(candidateId);
+        }
+
+        private void OnCreateNewCandidateExecute()
+        {
+            OnOpenCandidateDetailView(null);
         }
     }
 }

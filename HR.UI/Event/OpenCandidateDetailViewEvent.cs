@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace HR.UI.Event
 {
-    class OpenCandidateDetailViewEvent : PubSubEvent<int>
+    class OpenCandidateDetailViewEvent : PubSubEvent<int?>
     {
     }
 }

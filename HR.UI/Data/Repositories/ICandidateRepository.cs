@@ -9,5 +9,6 @@ namespace HR.UI.Data.Repositories
         Task<Candidate> GetByIdAsync(int candidateId);
         Task SaveAsync();
         bool HasChanges();
+        void Add(Candidate candidate);
     }
 }

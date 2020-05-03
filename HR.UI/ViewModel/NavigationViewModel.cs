@@ -29,7 +29,15 @@ namespace HR.UI.ViewModel
 
         private void AfterCandidateSaved(AfterCandidateSavedEventArgs obj)
         {
-            var lookupItem = Candidates.Single(l => l.Id == obj.Id);
+            var lookupItem = Candidates.SingleOrDefault(l => l.Id == obj.Id);
+            if(lookupItem == null)
+            {
+                Candidates.Add(new NavigationItemViewModel(obj.Id, obj.DisplayMember, _eventAggregator));
+            }
+            else
+            {
+                lookupItem.DisplayMember = obj.DisplayMember;
+            }
             lookupItem.DisplayMember = obj.DisplayMember; 
         }
 

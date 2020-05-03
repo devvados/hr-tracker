@@ -17,6 +17,11 @@ namespace HR.UI.Data.Repositories
             _context = context;
         }
 
+        public void Add(Candidate candidate)
+        {
+            _context.Candidates.Add(candidate);
+        }
+
         public IEnumerable<Candidate> GetAll()
         {
             return _context.Candidates.ToList();

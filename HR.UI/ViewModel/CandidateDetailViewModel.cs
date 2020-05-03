@@ -28,9 +28,11 @@ namespace HR.UI.ViewModel
             SaveCommand = new DelegateCommand(OnSaveExecute, OnSaveCanExecute);
         }
 
-        public async Task LoadAsync(int candidateId)
+        public async Task LoadAsync(int? candidateId)
         {
-            var candidate = await _candidateRepository.GetByIdAsync(candidateId);
+            var candidate = candidateId.HasValue
+                ? await _candidateRepository.GetByIdAsync(candidateId.Value)
+                : CreateNewCandidate();
 
             //subscribe save command availability to object state change
             Candidate = new CandidateWrapper(candidate);
@@ -45,6 +47,12 @@ namespace HR.UI.ViewModel
                       ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
                   }
               };
+
+            if (candidate.Id == 0)
+            {   
+                //trigger validation on new entity creation
+                Candidate.Name = "";
+            }
         }
 
         public CandidateWrapper Candidate
@@ -89,6 +97,13 @@ namespace HR.UI.ViewModel
                     Id = Candidate.Id,
                     DisplayMember = $"{Candidate.Name} {Candidate.LastName}"
                 });
+        }
+
+        private Candidate CreateNewCandidate()
+        {
+            var candidate = new Candidate();
+            _candidateRepository.Add(candidate);
+            return candidate;
         }
     }
 }
