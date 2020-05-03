@@ -25,20 +25,8 @@ namespace HR.UI.ViewModel
             Candidates = new ObservableCollection<NavigationItemViewModel>();
             _eventAggregator.GetEvent<AfterCandidateSavedEvent>()
                 .Subscribe(AfterCandidateSaved);
-        }
-
-        private void AfterCandidateSaved(AfterCandidateSavedEventArgs obj)
-        {
-            var lookupItem = Candidates.SingleOrDefault(l => l.Id == obj.Id);
-            if(lookupItem == null)
-            {
-                Candidates.Add(new NavigationItemViewModel(obj.Id, obj.DisplayMember, _eventAggregator));
-            }
-            else
-            {
-                lookupItem.DisplayMember = obj.DisplayMember;
-            }
-            lookupItem.DisplayMember = obj.DisplayMember; 
+            _eventAggregator.GetEvent<AfterCandidateDeletedEvent>()
+                .Subscribe(AfterCandidateDeleted);
         }
 
         public async Task LoadAsync()
@@ -52,5 +40,28 @@ namespace HR.UI.ViewModel
         }
 
         public ObservableCollection<NavigationItemViewModel> Candidates { get; }
+
+        private void AfterCandidateDeleted(int candidateId)
+        {
+            var candidate = Candidates.SingleOrDefault(c => c.Id == candidateId);
+            if (candidate != null)
+            {
+                Candidates.Remove(candidate);
+            }
+        }
+
+        private void AfterCandidateSaved(AfterCandidateSavedEventArgs obj)
+        {
+            var lookupItem = Candidates.SingleOrDefault(l => l.Id == obj.Id);
+            if (lookupItem == null)
+            {
+                Candidates.Add(new NavigationItemViewModel(obj.Id, obj.DisplayMember, 
+                    _eventAggregator));
+            }
+            else
+            {
+                lookupItem.DisplayMember = obj.DisplayMember;
+            }
+        }
     }
 }

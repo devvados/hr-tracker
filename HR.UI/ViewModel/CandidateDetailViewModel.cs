@@ -2,6 +2,7 @@
 using HR.UI.Data;
 using HR.UI.Data.Repositories;
 using HR.UI.Event;
+using HR.UI.View.Services;
 using HR.UI.Wrapper;
 using Prism.Commands;
 using Prism.Events;
@@ -15,17 +16,21 @@ namespace HR.UI.ViewModel
     {
         private ICandidateRepository _candidateRepository;
         private IEventAggregator _eventAggregator;
+        private IMessageDialogService _messageDialogService;
         private CandidateWrapper _candidate;
         private bool _hasChanges;
 
         public CandidateDetailViewModel(ICandidateRepository candidateRepository,
-            IEventAggregator eventAggregator)
+            IEventAggregator eventAggregator,
+            IMessageDialogService messageDialogService)
         {
             _candidateRepository = candidateRepository;
             _eventAggregator = eventAggregator;
+            _messageDialogService = messageDialogService;
 
             //parameter can be added as modifying method to generic
             SaveCommand = new DelegateCommand(OnSaveExecute, OnSaveCanExecute);
+            DeleteCommand = new DelegateCommand(OnDeleteExecute);
         }
 
         public async Task LoadAsync(int? candidateId)
@@ -38,7 +43,7 @@ namespace HR.UI.ViewModel
             Candidate = new CandidateWrapper(candidate);
             Candidate.PropertyChanged += (s, e) =>
               {
-                  if(HasChanges)
+                  if(!HasChanges)
                   {
                       HasChanges = _candidateRepository.HasChanges();
                   }
@@ -47,6 +52,7 @@ namespace HR.UI.ViewModel
                       ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
                   }
               };
+            ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
 
             if (candidate.Id == 0)
             {   
@@ -78,8 +84,9 @@ namespace HR.UI.ViewModel
             }
         }
 
-
         public ICommand SaveCommand { get; }
+
+        public ICommand DeleteCommand { get; }
 
         private bool OnSaveCanExecute()
         {
@@ -97,6 +104,21 @@ namespace HR.UI.ViewModel
                     Id = Candidate.Id,
                     DisplayMember = $"{Candidate.Name} {Candidate.LastName}"
                 });
+        }
+
+        private async void OnDeleteExecute()
+        {
+            var result = _messageDialogService.ShowOkCancelDialog(
+                $"Do you really want to delete candidate {Candidate.Name} {Candidate.LastName}?",
+                "Question");
+            if(result==MessageDialogResult.OK)
+            {
+                _candidateRepository.Remove(Candidate.Model);
+                await _candidateRepository.SaveAsync();
+
+                _eventAggregator.GetEvent<AfterCandidateDeletedEvent>()
+                    .Publish(Candidate.Id);
+            }          
         }
 
         private Candidate CreateNewCandidate()

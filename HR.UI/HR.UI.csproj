@@ -87,6 +87,7 @@
     </ApplicationDefinition>
     <Compile Include="Data\Lookups\ICandidateLookupDataService.cs" />
     <Compile Include="Data\Lookups\LookupDataService.cs" />
+    <Compile Include="Event\AfterCandidateDeletedEvent.cs" />
     <Compile Include="Event\AfterCandidateSavedEvent.cs" />
     <Compile Include="Event\OpenCandidateDetailViewEvent.cs" />
     <Compile Include="Startup\Bootstrapper.cs" />

@@ -10,5 +10,6 @@ namespace HR.UI.Data.Repositories
         Task SaveAsync();
         bool HasChanges();
         void Add(Candidate candidate);
+        void Remove(Candidate candidate);
     }
 }

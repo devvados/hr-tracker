@@ -26,6 +26,8 @@ namespace HR.UI.ViewModel
 
             _eventAggregator.GetEvent<OpenCandidateDetailViewEvent>()
                 .Subscribe(OnOpenCandidateDetailView);
+            _eventAggregator.GetEvent<AfterCandidateDeletedEvent>()
+                .Subscribe(AfterCandidateDeleted);
 
             CreateNewCandidateCommand = new DelegateCommand(OnCreateNewCandidateExecute);
 
@@ -53,7 +55,7 @@ namespace HR.UI.ViewModel
 
         private async void OnOpenCandidateDetailView(int? candidateId)
         {
-            if(CandidateDetailViewModel!=null &&  CandidateDetailViewModel.HasChanges)
+            if(CandidateDetailViewModel!=null && CandidateDetailViewModel.HasChanges)
             {
                 var result = _messageDialogService.ShowOkCancelDialog("You have made changes! Navigate away?", "Question");
                 if(result  == MessageDialogResult.Cancel)
@@ -68,6 +70,11 @@ namespace HR.UI.ViewModel
         private void OnCreateNewCandidateExecute()
         {
             OnOpenCandidateDetailView(null);
+        }
+
+        private void AfterCandidateDeleted(int candidateId)
+        {
+            CandidateDetailViewModel = null;
         }
     }
 }

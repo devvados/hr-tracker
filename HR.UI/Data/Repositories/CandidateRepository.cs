@@ -22,6 +22,11 @@ namespace HR.UI.Data.Repositories
             _context.Candidates.Add(candidate);
         }
 
+        public void Remove(Candidate candidate)
+        {
+            _context.Candidates.Remove(candidate);
+        }
+
         public IEnumerable<Candidate> GetAll()
         {
             return _context.Candidates.ToList();
