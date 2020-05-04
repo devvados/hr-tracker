@@ -1,10 +1,7 @@
-﻿using System.Threading.Tasks;
-
-namespace HR.UI.ViewModel
+﻿namespace HR.UI.ViewModel
 {
-    public interface ICandidateDetailViewModel
+    public interface ICandidateDetailViewModel : IDetailViewModel
     {
-        Task LoadAsync(int? candidateId);
-        bool HasChanges { get; }
+
     }
 }

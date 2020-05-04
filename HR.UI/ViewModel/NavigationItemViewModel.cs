@@ -14,14 +14,17 @@ namespace HR.UI.ViewModel
     {
         private string _displayMember;
         private IEventAggregator _eventAggregator;
+        private string _detailViewModelName;
 
         public NavigationItemViewModel(int id, string displayMember,
-            IEventAggregator eventAggregator)
+            IEventAggregator eventAggregator,
+            string detailViewModelName)
         {
             _eventAggregator = eventAggregator;
             Id = id;
             DisplayMember = displayMember;
-            OpenCandidateDetailViewCommand = new DelegateCommand(OnOpenCandidateDetailView);
+            _detailViewModelName = detailViewModelName;
+            OpenDetailViewCommand = new DelegateCommand(OnOpenDetailViewExecute);
         }
      
         public int Id { get; }
@@ -39,12 +42,17 @@ namespace HR.UI.ViewModel
             }
         }
 
-        public ICommand OpenCandidateDetailViewCommand { get; }
+        public ICommand OpenDetailViewCommand { get; }
 
-        private void OnOpenCandidateDetailView()
+        private void OnOpenDetailViewExecute()
         {
-            _eventAggregator.GetEvent<OpenCandidateDetailViewEvent>()
-                        .Publish(Id);
+            _eventAggregator.GetEvent<OpenDetailViewEvent>()
+                .Publish(
+                new OpenDetailViewEventArgs
+                {
+                    Id = Id,
+                    ViewModelName = _detailViewModelName
+                });
         }
     }
 }

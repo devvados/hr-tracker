@@ -8,33 +8,13 @@ using HR.Model;
 
 namespace HR.UI.Data.Repositories
 {
-    public class CandidateRepository : ICandidateRepository
+    public class CandidateRepository : GenericRepository<Candidate, HrDbContext>, ICandidateRepository
     {
-        HrDbContext _context;
+        public CandidateRepository(HrDbContext context) : base(context) { }
 
-        public CandidateRepository(HrDbContext context)
+        public override async Task<Candidate> GetByIdAsync(int candidateId)
         {
-            _context = context;
-        }
-
-        public void Add(Candidate candidate)
-        {
-            _context.Candidates.Add(candidate);
-        }
-
-        public void Remove(Candidate candidate)
-        {
-            _context.Candidates.Remove(candidate);
-        }
-
-        public IEnumerable<Candidate> GetAll()
-        {
-            return _context.Candidates.ToList();
-        }
-
-        public async Task<Candidate> GetByIdAsync(int candidateId)
-        {
-            return await _context.Candidates
+            return await Context.Candidates
                 .Include(c => c.PhoneNumbers)
                 .SingleAsync(c => c.Id == candidateId);
 
@@ -46,19 +26,9 @@ namespace HR.UI.Data.Repositories
             */
         }
 
-        public bool HasChanges()
-        {
-            return _context.ChangeTracker.HasChanges();
-        }
-
-        public async Task SaveAsync()
-        {
-            await _context.SaveChangesAsync();
-        }
-
         public void RemovePhoneNumber(CandidatePhoneNumber model)
         {
-            _context.CandidatePhoneNumbers.Remove(model);
+            Context.CandidatePhoneNumbers.Remove(model);
         }
     }
 }

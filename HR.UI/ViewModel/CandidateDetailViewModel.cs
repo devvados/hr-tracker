@@ -18,10 +18,9 @@ using System.Windows.Input;
 
 namespace HR.UI.ViewModel
 {
-    class CandidateDetailViewModel : ViewModelBase, ICandidateDetailViewModel
+    class CandidateDetailViewModel : DetailViewModelBase, ICandidateDetailViewModel
     {
         private ICandidateRepository _candidateRepository;
-        private IEventAggregator _eventAggregator;
         private IMessageDialogService _messageDialogService;
         private IPositionLookupDataService _positionLookupDataService;
         private ICompanyLookupDataService _companyLookupDataService;
@@ -34,16 +33,14 @@ namespace HR.UI.ViewModel
             IMessageDialogService messageDialogService,
             IPositionLookupDataService positionLookupDataService,
             ICompanyLookupDataService companyLookupDataService)
+            : base(eventAggregator)
         {
             _candidateRepository = candidateRepository;
-            _eventAggregator = eventAggregator;
             _messageDialogService = messageDialogService;
             _positionLookupDataService = positionLookupDataService;
             _companyLookupDataService = companyLookupDataService;
 
             //parameter can be added as modifying method to generic
-            SaveCommand = new DelegateCommand(OnSaveExecute, OnSaveCanExecute);
-            DeleteCommand = new DelegateCommand(OnDeleteExecute);
             AddPhoneNumberCommand = new DelegateCommand(OnAddPhoneNumberExecute);
             RemovePhoneNumberCommand = new DelegateCommand(OnRemovePhoneNumberExecute,
                 OnRemovePhoneNumberCanExecute);
@@ -53,7 +50,7 @@ namespace HR.UI.ViewModel
             PhoneNumbers = new ObservableCollection<CandidatePhoneNumberWrapper>();
         }
 
-        public async Task LoadAsync(int? candidateId)
+        public override async Task LoadAsync(int? candidateId)
         {
             var candidate = candidateId.HasValue
                 ? await _candidateRepository.GetByIdAsync(candidateId.Value)
@@ -162,23 +159,6 @@ namespace HR.UI.ViewModel
             }
         }
 
-        public bool HasChanges
-        {
-            get { return _hasChanges; }
-            set {
-                if (_hasChanges != value)
-                {
-                    _hasChanges = value;
-                    OnPropertyChanged();
-                    ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
-                }
-            }
-        }
-
-        public ICommand SaveCommand { get; }
-
-        public ICommand DeleteCommand { get; }
-
         public ICommand AddPhoneNumberCommand { get; }
 
         public ICommand RemovePhoneNumberCommand { get; }
@@ -189,7 +169,7 @@ namespace HR.UI.ViewModel
 
         public ObservableCollection<CandidatePhoneNumberWrapper> PhoneNumbers { get; }
 
-        private bool OnSaveCanExecute()
+        protected override bool OnSaveCanExecute()
         {
             return Candidate != null
                 && !Candidate.HasErrors
@@ -197,20 +177,15 @@ namespace HR.UI.ViewModel
                 && HasChanges;
         }
 
-        private async void OnSaveExecute()
+        protected override async void OnSaveExecute()
         {
             await _candidateRepository.SaveAsync();
 
             HasChanges = _candidateRepository.HasChanges();
-            _eventAggregator.GetEvent<AfterCandidateSavedEvent>()
-                .Publish(new AfterCandidateSavedEventArgs
-                {
-                    Id = Candidate.Id,
-                    DisplayMember = $"{Candidate.Name} {Candidate.LastName}"
-                });
+            RaiseDetailSavedEvent(Candidate.Id, $"{Candidate.Name} {Candidate.LastName}");
         }
 
-        private async void OnDeleteExecute()
+        protected override async void OnDeleteExecute()
         {
             var result = _messageDialogService.ShowOkCancelDialog(
                 $"Do you really want to delete candidate {Candidate.Name} {Candidate.LastName}?",
@@ -220,8 +195,7 @@ namespace HR.UI.ViewModel
                 _candidateRepository.Remove(Candidate.Model);
                 await _candidateRepository.SaveAsync();
 
-                _eventAggregator.GetEvent<AfterCandidateDeletedEvent>()
-                    .Publish(Candidate.Id);
+                RaiseDetailDeletedEvent(Candidate.Id);
             }          
         }
 

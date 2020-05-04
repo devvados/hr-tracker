@@ -10,7 +10,7 @@ namespace HR.UI.ViewModel
 {
     public class MainViewModel : ViewModelBase
     {
-        private ICandidateDetailViewModel _candidateDetailViewModel;
+        private IDetailViewModel _detailViewModel;
         private IEventAggregator _eventAggregator;
         private Func<ICandidateDetailViewModel> _candidateDetailViewModelCreator;
         private IMessageDialogService _messageDialogService;
@@ -24,12 +24,12 @@ namespace HR.UI.ViewModel
             _candidateDetailViewModelCreator = candidateDetailViewModelCreator;
             _messageDialogService = messageDialogService;
 
-            _eventAggregator.GetEvent<OpenCandidateDetailViewEvent>()
-                .Subscribe(OnOpenCandidateDetailView);
-            _eventAggregator.GetEvent<AfterCandidateDeletedEvent>()
-                .Subscribe(AfterCandidateDeleted);
+            _eventAggregator.GetEvent<OpenDetailViewEvent>()
+                .Subscribe(OnOpenDetailView);
+            _eventAggregator.GetEvent<AfterDetailDeletedEvent>()
+                .Subscribe(AfterDetailDeleted);
 
-            CreateNewCandidateCommand = new DelegateCommand(OnCreateNewCandidateExecute);
+            CreateNewDetailCommand = new DelegateCommand<Type>(OnCreateNewDetailExecute);
 
             NavigationViewModel = navigationViewModel;
         }
@@ -39,23 +39,23 @@ namespace HR.UI.ViewModel
             await NavigationViewModel.LoadAsync();
         }
 
-        public ICommand CreateNewCandidateCommand { get; }
+        public ICommand CreateNewDetailCommand { get; }
 
         public INavigationViewModel NavigationViewModel { get; }
 
-        public ICandidateDetailViewModel CandidateDetailViewModel
+        public IDetailViewModel DetailViewModel
         {
-            get { return _candidateDetailViewModel; }
+            get { return _detailViewModel; }
             private set 
             { 
-                _candidateDetailViewModel = value;
+                _detailViewModel = value;
                 OnPropertyChanged();
             }
         }
 
-        private async void OnOpenCandidateDetailView(int? candidateId)
+        private async void OnOpenDetailView(OpenDetailViewEventArgs args)
         {
-            if(CandidateDetailViewModel!=null && CandidateDetailViewModel.HasChanges)
+            if(DetailViewModel!=null && DetailViewModel.HasChanges)
             {
                 var result = _messageDialogService.ShowOkCancelDialog("You have made changes! Navigate away?", "Question");
                 if(result  == MessageDialogResult.Cancel)
@@ -63,18 +63,30 @@ namespace HR.UI.ViewModel
                     return;
                 }
             }
-            CandidateDetailViewModel = _candidateDetailViewModelCreator();
-            await CandidateDetailViewModel.LoadAsync(candidateId);
+
+            //switch between view models
+            switch (args.ViewModelName)
+            {
+                case nameof(CandidateDetailViewModel):
+                    DetailViewModel = _candidateDetailViewModelCreator();
+                    break;
+            }
+
+            await DetailViewModel.LoadAsync(args.Id);
         }
 
-        private void OnCreateNewCandidateExecute()
+        private void OnCreateNewDetailExecute(Type viewModelType)
         {
-            OnOpenCandidateDetailView(null);
+            OnOpenDetailView(
+                new OpenDetailViewEventArgs 
+                { 
+                    ViewModelName = viewModelType.Name 
+                });
         }
 
-        private void AfterCandidateDeleted(int candidateId)
+        private void AfterDetailDeleted(AfterDetailDeletedEventArgs args)
         {
-            CandidateDetailViewModel = null;
+            DetailViewModel = null;
         }
     }
 }

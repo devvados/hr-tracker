@@ -23,10 +23,10 @@ namespace HR.UI.ViewModel
             _candidateLookupService = candidateLookupService;
             _eventAggregator = eventAggregator;
             Candidates = new ObservableCollection<NavigationItemViewModel>();
-            _eventAggregator.GetEvent<AfterCandidateSavedEvent>()
-                .Subscribe(AfterCandidateSaved);
-            _eventAggregator.GetEvent<AfterCandidateDeletedEvent>()
-                .Subscribe(AfterCandidateDeleted);
+            _eventAggregator.GetEvent<AfterDetailSavedEvent>()
+                .Subscribe(AfterDetailSaved);
+            _eventAggregator.GetEvent<AfterDetailDeletedEvent>()
+                .Subscribe(AfterDetailDeleted);
         }
 
         public async Task LoadAsync()
@@ -35,33 +35,50 @@ namespace HR.UI.ViewModel
             Candidates.Clear();
             foreach (var item in lookup)
             {
-                Candidates.Add(new NavigationItemViewModel(item.Id,item.DisplayMember, _eventAggregator));
+                Candidates.Add(new NavigationItemViewModel(item.Id,item.DisplayMember, 
+                    _eventAggregator,
+                    nameof(CandidateDetailViewModel)));
             }
         }
 
         public ObservableCollection<NavigationItemViewModel> Candidates { get; }
 
-        private void AfterCandidateDeleted(int candidateId)
+        private void AfterDetailDeleted(AfterDetailDeletedEventArgs args)
         {
-            var candidate = Candidates.SingleOrDefault(c => c.Id == candidateId);
-            if (candidate != null)
+            //switch between view models
+            switch(args.ViewModelName)
             {
-                Candidates.Remove(candidate);
-            }
+                case nameof(CandidateDetailViewModel):
+                    var candidate = Candidates
+                        .SingleOrDefault(c => c.Id == args.Id);
+                    if (candidate != null)
+                    {
+                        Candidates.Remove(candidate);
+                    }
+                    break;
+            }    
         }
 
-        private void AfterCandidateSaved(AfterCandidateSavedEventArgs obj)
+        private void AfterDetailSaved(AfterDetailSavedEventArgs obj)
         {
-            var lookupItem = Candidates.SingleOrDefault(l => l.Id == obj.Id);
-            if (lookupItem == null)
+            //switch between view models
+            switch (obj.ViewModelName)
             {
-                Candidates.Add(new NavigationItemViewModel(obj.Id, obj.DisplayMember, 
-                    _eventAggregator));
+                case nameof(CandidateDetailViewModel):
+                    var lookupItem = Candidates.SingleOrDefault(l => l.Id == obj.Id);
+                    if (lookupItem == null)
+                    {
+                        Candidates.Add(new NavigationItemViewModel(obj.Id, obj.DisplayMember,
+                            _eventAggregator,
+                            nameof(CandidateDetailViewModel)));
+                    }
+                    else
+                    {
+                        lookupItem.DisplayMember = obj.DisplayMember;
+                    }
+                    break;
             }
-            else
-            {
-                lookupItem.DisplayMember = obj.DisplayMember;
-            }
+            
         }
     }
 }
