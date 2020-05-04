@@ -34,7 +34,9 @@ namespace HR.UI.Data.Repositories
 
         public async Task<Candidate> GetByIdAsync(int candidateId)
         {
-            return await _context.Candidates.SingleAsync(c => c.Id == candidateId);
+            return await _context.Candidates
+                .Include(c => c.PhoneNumbers)
+                .SingleAsync(c => c.Id == candidateId);
 
             /* Visual representation of async work
             * 
@@ -52,6 +54,11 @@ namespace HR.UI.Data.Repositories
         public async Task SaveAsync()
         {
             await _context.SaveChangesAsync();
+        }
+
+        public void RemovePhoneNumber(CandidatePhoneNumber model)
+        {
+            _context.CandidatePhoneNumbers.Remove(model);
         }
     }
 }

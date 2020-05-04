@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Candidate.cs" />
+    <Compile Include="CandidatePhoneNumber.cs" />
     <Compile Include="Company.cs" />
     <Compile Include="LookupItem.cs" />
     <Compile Include="Position.cs" />

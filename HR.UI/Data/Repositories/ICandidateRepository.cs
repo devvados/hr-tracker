@@ -11,5 +11,6 @@ namespace HR.UI.Data.Repositories
         bool HasChanges();
         void Add(Candidate candidate);
         void Remove(Candidate candidate);
+        void RemovePhoneNumber(CandidatePhoneNumber model);
     }
 }

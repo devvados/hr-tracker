@@ -1,9 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace HR.Model
 {
     public class Candidate
     {
+        public Candidate()
+        {
+            PhoneNumbers = new Collection<CandidatePhoneNumber>();
+        }
+
         public int Id { get; set; }
         [Required]
         [StringLength(50)]
@@ -18,8 +25,6 @@ namespace HR.Model
         [EmailAddress]
         public string Email { get; set; }
 
-        public string PhoneNumber { get; set; }
-
         public int? CompanyId { get; set; }
 
         public int? PositionId { get; set; }
@@ -27,5 +32,7 @@ namespace HR.Model
         public Company Company { get; set; }
 
         public Position Position { get; set; }
+
+        public ICollection<CandidatePhoneNumber> PhoneNumbers { get; set; }
     }
 }

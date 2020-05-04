@@ -7,7 +7,8 @@
         xmlns:view="clr-namespace:HR.UI.View"
         xmlns:viewModel="clr-namespace:HR.UI.ViewModel"
         mc:Ignorable="d"
-        Title="HR" Height="450" Width="800" FontSize="20">
+        Title="HR" Height="700" Width="1000" FontSize="20"
+        WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <DataTemplate DataType="{x:Type viewModel:CandidateDetailViewModel}">
             <view:CandidateDetailView/>

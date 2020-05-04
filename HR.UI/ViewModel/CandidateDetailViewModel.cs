@@ -8,7 +8,11 @@ using HR.UI.Wrapper;
 using Prism.Commands;
 using Prism.Events;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -23,6 +27,7 @@ namespace HR.UI.ViewModel
         private ICompanyLookupDataService _companyLookupDataService;
         private CandidateWrapper _candidate;
         private bool _hasChanges;
+        private CandidatePhoneNumberWrapper _selectedPhoneNumber;
 
         public CandidateDetailViewModel(ICandidateRepository candidateRepository,
             IEventAggregator eventAggregator,
@@ -39,9 +44,13 @@ namespace HR.UI.ViewModel
             //parameter can be added as modifying method to generic
             SaveCommand = new DelegateCommand(OnSaveExecute, OnSaveCanExecute);
             DeleteCommand = new DelegateCommand(OnDeleteExecute);
+            AddPhoneNumberCommand = new DelegateCommand(OnAddPhoneNumberExecute);
+            RemovePhoneNumberCommand = new DelegateCommand(OnRemovePhoneNumberExecute,
+                OnRemovePhoneNumberCanExecute);
 
             Companies = new ObservableCollection<LookupItem>();
             Positions = new ObservableCollection<LookupItem>();
+            PhoneNumbers = new ObservableCollection<CandidatePhoneNumberWrapper>();
         }
 
         public async Task LoadAsync(int? candidateId)
@@ -51,9 +60,37 @@ namespace HR.UI.ViewModel
                 : CreateNewCandidate();
 
             InitializeCandidate(candidate);
+            InitializeCandidatePhoneNumbers(candidate.PhoneNumbers);
 
             await LoadCompaniesLookupAsync();
             await LoadPositionsLookupAsync();
+        }
+
+        private void InitializeCandidatePhoneNumbers(ICollection<CandidatePhoneNumber> phoneNumbers)
+        {
+            foreach (var wrapper in PhoneNumbers)
+            {
+                wrapper.PropertyChanged -= CandidatePhoneNumberWrapper_PropertyChanged;
+            }
+            PhoneNumbers.Clear();
+            foreach (var candidatePhoneNumber in phoneNumbers)
+            {
+                var wrapper = new CandidatePhoneNumberWrapper(candidatePhoneNumber);
+                PhoneNumbers.Add(wrapper);
+                wrapper.PropertyChanged += CandidatePhoneNumberWrapper_PropertyChanged;
+            }
+        }
+
+        private void CandidatePhoneNumberWrapper_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if(!HasChanges)
+            {
+                HasChanges = _candidateRepository.HasChanges();
+            }
+            if(e.PropertyName == nameof(CandidatePhoneNumberWrapper.HasErrors))
+            {
+                ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
+            }
         }
 
         private async Task LoadPositionsLookupAsync()
@@ -114,6 +151,17 @@ namespace HR.UI.ViewModel
             }
         }       
 
+        public CandidatePhoneNumberWrapper SelectedPhoneNumber
+        {
+            get { return _selectedPhoneNumber; }
+            set
+            {
+                _selectedPhoneNumber = value;
+                OnPropertyChanged();
+                ((DelegateCommand)RemovePhoneNumberCommand).RaiseCanExecuteChanged();
+            }
+        }
+
         public bool HasChanges
         {
             get { return _hasChanges; }
@@ -131,13 +179,22 @@ namespace HR.UI.ViewModel
 
         public ICommand DeleteCommand { get; }
 
+        public ICommand AddPhoneNumberCommand { get; }
+
+        public ICommand RemovePhoneNumberCommand { get; }
+
         public ObservableCollection<LookupItem> Companies { get; }
 
         public ObservableCollection<LookupItem> Positions { get; }
 
+        public ObservableCollection<CandidatePhoneNumberWrapper> PhoneNumbers { get; }
+
         private bool OnSaveCanExecute()
         {
-            return Candidate!=null  && !Candidate.HasErrors && HasChanges;
+            return Candidate != null
+                && !Candidate.HasErrors
+                && PhoneNumbers.All(pn => !pn.HasErrors)
+                && HasChanges;
         }
 
         private async void OnSaveExecute()
@@ -173,6 +230,42 @@ namespace HR.UI.ViewModel
             var candidate = new Candidate();
             _candidateRepository.Add(candidate);
             return candidate;
+        }
+
+        private bool OnRemovePhoneNumberCanExecute()
+        {
+            return SelectedPhoneNumber != null;
+        }
+
+        private void OnRemovePhoneNumberExecute()
+        {
+            SelectedPhoneNumber.PropertyChanged -= CandidatePhoneNumberWrapper_PropertyChanged;
+
+            //remove record from database
+            _candidateRepository.RemovePhoneNumber(SelectedPhoneNumber.Model);
+
+            //removing model from collections
+            PhoneNumbers.Remove(SelectedPhoneNumber);
+
+            SelectedPhoneNumber = null;
+
+            //raise event that changes were made
+            HasChanges = _candidateRepository.HasChanges();
+            ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
+        }
+
+        private void OnAddPhoneNumberExecute()
+        {
+            //subscribe to event that changes were made
+            var newNumber = new CandidatePhoneNumberWrapper(new CandidatePhoneNumber());
+            newNumber.PropertyChanged += CandidatePhoneNumberWrapper_PropertyChanged;
+
+            //adding model to collections
+            PhoneNumbers.Add(newNumber);
+            Candidate.Model.PhoneNumbers.Add(newNumber.Model);
+
+            //trigger validation
+            newNumber.Number = "";
         }
     }
 }
