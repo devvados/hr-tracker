@@ -14,6 +14,8 @@ namespace HR.DataAccess
         }
 
         public DbSet<Candidate> Candidates { get; set; }
+        public DbSet<Position> Positions { get; set; }
+        public DbSet<Company> Companies { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

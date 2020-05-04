@@ -86,6 +86,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Data\Lookups\ICandidateLookupDataService.cs" />
+    <Compile Include="Data\Lookups\ICompanyLookupDataService.cs" />
+    <Compile Include="Data\Lookups\IPositionLookupDataService.cs" />
     <Compile Include="Data\Lookups\LookupDataService.cs" />
     <Compile Include="Event\AfterCandidateDeletedEvent.cs" />
     <Compile Include="Event\AfterCandidateSavedEvent.cs" />

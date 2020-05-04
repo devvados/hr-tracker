@@ -52,9 +52,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HrDbCobtext.cs" />
-    <Compile Include="Migrations\202005012115305_InitialDatabase.cs" />
-    <Compile Include="Migrations\202005012115305_InitialDatabase.designer.cs">
-      <DependentUpon>202005012115305_InitialDatabase.cs</DependentUpon>
+    <Compile Include="Migrations\202005041148382_Initial.cs" />
+    <Compile Include="Migrations\202005041148382_Initial.designer.cs">
+      <DependentUpon>202005041148382_Initial.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202005041153009_InitialData.cs" />
+    <Compile Include="Migrations\202005041153009_InitialData.designer.cs">
+      <DependentUpon>202005041153009_InitialData.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -70,8 +74,11 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\202005012115305_InitialDatabase.resx">
-      <DependentUpon>202005012115305_InitialDatabase.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\202005041148382_Initial.resx">
+      <DependentUpon>202005041148382_Initial.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202005041153009_InitialData.resx">
+      <DependentUpon>202005041153009_InitialData.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,19 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace HR.Model
 {
-    public class LookupItem
+    public class Position
     {
         public int Id { get; set; }
-        public string DisplayMember { get; set; }
-    }
 
-    public class NullLookupItem : LookupItem
-    {
-        public new int? Id { get { return null; } }
+        [Required]
+        [StringLength(200)]
+        public string Name { get; set; }
     }
 }

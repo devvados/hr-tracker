@@ -33,6 +33,8 @@ namespace HR.UI.Startup
 
             builder.RegisterType<CandidateRepository>()
                 .As<ICandidateRepository>();
+
+            //any ILookupDataService interface will use defined implementation
             builder.RegisterType<LookupDataService>()
                 .AsImplementedInterfaces();
             

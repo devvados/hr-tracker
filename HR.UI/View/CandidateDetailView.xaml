@@ -14,6 +14,10 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -35,7 +39,21 @@
                             Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                      Margin="10 0 10 10"/>
 
-        <StackPanel Grid.Row="7" Orientation="Horizontal">
+        <Label Grid.Row="6" Content="Company" Margin="10 0"/>
+        <ComboBox Grid.Row="7" Margin="10 0 10 10"
+                  ItemsSource="{Binding  Companies}"
+                  DisplayMemberPath="DisplayMember"
+                  SelectedValuePath="Id"
+                  SelectedValue="{Binding Candidate.CompanyId, Mode=TwoWay}"/>
+
+        <Label Grid.Row="8" Content="Position" Margin="10 0"/>
+        <ComboBox Grid.Row="9" Margin="10 0 10 10"
+                  ItemsSource="{Binding  Positions}"
+                  DisplayMemberPath="DisplayMember"
+                  SelectedValuePath="Id"
+                  SelectedValue="{Binding Candidate.PositionId, Mode=TwoWay}"/>
+        
+        <StackPanel Grid.Row="11" Orientation="Horizontal">
             <Button Content="Save" Width="125" Margin="10"
                     Command="{Binding SaveCommand}"/>
             <Button Content="Delete" Width="125" Margin="10"

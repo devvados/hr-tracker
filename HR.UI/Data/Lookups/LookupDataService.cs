@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace HR.UI.Data.Lookups
 {
-    public class LookupDataService : ICandidateLookupDataService
+    public class LookupDataService : ICandidateLookupDataService, IPositionLookupDataService, ICompanyLookupDataService
     {
         private Func<HrDbContext> _contextCreator;
 
@@ -28,6 +28,36 @@ namespace HR.UI.Data.Lookups
                     {
                         Id = c.Id,
                         DisplayMember = c.Name + " " + c.LastName
+                    })
+                .ToListAsync();
+            }
+        }
+
+        public async Task<IEnumerable<LookupItem>> GetPositionAsync()
+        {
+            using (var ctx = _contextCreator())
+            {
+                return await ctx.Positions.AsNoTracking()
+                    .Select(c =>
+                    new LookupItem
+                    {
+                        Id = c.Id,
+                        DisplayMember = c.Name
+                    })
+                .ToListAsync();
+            }
+        }
+
+        public async Task<IEnumerable<LookupItem>> GetCompanyAsync()
+        {
+            using (var ctx = _contextCreator())
+            {
+                return await ctx.Companies.AsNoTracking()
+                    .Select(c =>
+                    new LookupItem
+                    {
+                        Id = c.Id,
+                        DisplayMember = c.Name
                     })
                 .ToListAsync();
             }

@@ -30,6 +30,18 @@ namespace HR.UI.Wrapper
             set { SetValue(value); }
         }
 
+        public int? CompanyId
+        {
+            get { return GetValue<int?>(); }
+            set { SetValue(value); }
+        }
+
+        public int? PositionId
+        {
+            get { return GetValue<int?>(); }
+            set { SetValue(value); }
+        }
+
         protected override IEnumerable<string> ValidateProperty(string propertyName)
         {
             switch (propertyName)

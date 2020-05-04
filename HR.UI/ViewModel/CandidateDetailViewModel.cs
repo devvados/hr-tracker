@@ -1,5 +1,6 @@
 ﻿using HR.Model;
 using HR.UI.Data;
+using HR.UI.Data.Lookups;
 using HR.UI.Data.Repositories;
 using HR.UI.Event;
 using HR.UI.View.Services;
@@ -7,6 +8,7 @@ using HR.UI.Wrapper;
 using Prism.Commands;
 using Prism.Events;
 using System;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -17,20 +19,29 @@ namespace HR.UI.ViewModel
         private ICandidateRepository _candidateRepository;
         private IEventAggregator _eventAggregator;
         private IMessageDialogService _messageDialogService;
+        private IPositionLookupDataService _positionLookupDataService;
+        private ICompanyLookupDataService _companyLookupDataService;
         private CandidateWrapper _candidate;
         private bool _hasChanges;
 
         public CandidateDetailViewModel(ICandidateRepository candidateRepository,
             IEventAggregator eventAggregator,
-            IMessageDialogService messageDialogService)
+            IMessageDialogService messageDialogService,
+            IPositionLookupDataService positionLookupDataService,
+            ICompanyLookupDataService companyLookupDataService)
         {
             _candidateRepository = candidateRepository;
             _eventAggregator = eventAggregator;
             _messageDialogService = messageDialogService;
+            _positionLookupDataService = positionLookupDataService;
+            _companyLookupDataService = companyLookupDataService;
 
             //parameter can be added as modifying method to generic
             SaveCommand = new DelegateCommand(OnSaveExecute, OnSaveCanExecute);
             DeleteCommand = new DelegateCommand(OnDeleteExecute);
+
+            Companies = new ObservableCollection<LookupItem>();
+            Positions = new ObservableCollection<LookupItem>();
         }
 
         public async Task LoadAsync(int? candidateId)
@@ -39,23 +50,55 @@ namespace HR.UI.ViewModel
                 ? await _candidateRepository.GetByIdAsync(candidateId.Value)
                 : CreateNewCandidate();
 
+            InitializeCandidate(candidate);
+
+            await LoadCompaniesLookupAsync();
+            await LoadPositionsLookupAsync();
+        }
+
+        private async Task LoadPositionsLookupAsync()
+        {
+            Positions.Clear();
+            Positions.Add(new NullLookupItem { DisplayMember = " - " });
+
+            var positionLookup = await _positionLookupDataService.GetPositionAsync();
+            foreach (var lookupItem in positionLookup)
+            {
+                Positions.Add(lookupItem);
+            }
+        }
+
+        private async Task LoadCompaniesLookupAsync()
+        {
+            Companies.Clear();
+            Companies.Add(new NullLookupItem { DisplayMember = " - "});
+
+            var companyLookup = await _companyLookupDataService.GetCompanyAsync();
+            foreach (var lookupItem in companyLookup)
+            {
+                Companies.Add(lookupItem);
+            }
+        }
+
+        private void InitializeCandidate(Candidate candidate)
+        {
             //subscribe save command availability to object state change
             Candidate = new CandidateWrapper(candidate);
             Candidate.PropertyChanged += (s, e) =>
-              {
-                  if(!HasChanges)
-                  {
-                      HasChanges = _candidateRepository.HasChanges();
-                  }
-                  if (e.PropertyName == nameof(Candidate.HasErrors))
-                  {
-                      ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
-                  }
-              };
+            {
+                if (!HasChanges)
+                {
+                    HasChanges = _candidateRepository.HasChanges();
+                }
+                if (e.PropertyName == nameof(Candidate.HasErrors))
+                {
+                    ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
+                }
+            };
             ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
 
             if (candidate.Id == 0)
-            {   
+            {
                 //trigger validation on new entity creation
                 Candidate.Name = "";
             }
@@ -87,6 +130,10 @@ namespace HR.UI.ViewModel
         public ICommand SaveCommand { get; }
 
         public ICommand DeleteCommand { get; }
+
+        public ObservableCollection<LookupItem> Companies { get; }
+
+        public ObservableCollection<LookupItem> Positions { get; }
 
         private bool OnSaveCanExecute()
         {
