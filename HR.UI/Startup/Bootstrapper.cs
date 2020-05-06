@@ -29,10 +29,14 @@ namespace HR.UI.Startup
             builder.RegisterType<NavigationViewModel>()
                 .As<INavigationViewModel>();
             builder.RegisterType<CandidateDetailViewModel>()
-                .As<ICandidateDetailViewModel>();
+                .Keyed<IDetailViewModel>(nameof(CandidateDetailViewModel));
+            builder.RegisterType<MeetingDetailViewModel>()
+                .Keyed<IDetailViewModel>(nameof(MeetingDetailViewModel));
 
             builder.RegisterType<CandidateRepository>()
                 .As<ICandidateRepository>();
+            builder.RegisterType<MeetingRepository>()
+                .As<IMeetingRepository>();
 
             //any ILookupDataService interface will use defined implementation
             builder.RegisterType<LookupDataService>()

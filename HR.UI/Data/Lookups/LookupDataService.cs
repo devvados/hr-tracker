@@ -9,7 +9,10 @@ using System.Threading.Tasks;
 
 namespace HR.UI.Data.Lookups
 {
-    public class LookupDataService : ICandidateLookupDataService, IPositionLookupDataService, ICompanyLookupDataService
+    public class LookupDataService : ICandidateLookupDataService, 
+        IPositionLookupDataService, 
+        ICompanyLookupDataService,
+        IMeetingLookupDataService
     {
         private Func<HrDbContext> _contextCreator;
 
@@ -18,7 +21,7 @@ namespace HR.UI.Data.Lookups
             _contextCreator = contextCreator;
         }
 
-        public async Task<IEnumerable<LookupItem>> GetCandidateAsync()
+        public async Task<IEnumerable<LookupItem>> GetCandidateLookupAsync()
         {
             using (var ctx = _contextCreator())
             {
@@ -33,7 +36,7 @@ namespace HR.UI.Data.Lookups
             }
         }
 
-        public async Task<IEnumerable<LookupItem>> GetPositionAsync()
+        public async Task<IEnumerable<LookupItem>> GetPositionLookupAsync()
         {
             using (var ctx = _contextCreator())
             {
@@ -48,7 +51,7 @@ namespace HR.UI.Data.Lookups
             }
         }
 
-        public async Task<IEnumerable<LookupItem>> GetCompanyAsync()
+        public async Task<IEnumerable<LookupItem>> GetCompanyLookupAsync()
         {
             using (var ctx = _contextCreator())
             {
@@ -60,6 +63,21 @@ namespace HR.UI.Data.Lookups
                         DisplayMember = c.Name
                     })
                 .ToListAsync();
+            }
+        }
+
+        public async Task<IEnumerable<LookupItem>> GetMeetingLookupAsync()
+        {
+            using (var ctx = _contextCreator())
+            {
+                var items = await ctx.Meetings.AsNoTracking()
+                    .Select(m =>
+                    new LookupItem
+                    {
+                        Id = m.Id,
+                        DisplayMember = m.Title
+                    }).ToListAsync();
+                return items;
             }
         }
     }

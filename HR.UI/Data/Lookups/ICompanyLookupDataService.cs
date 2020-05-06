@@ -6,6 +6,6 @@ namespace HR.UI.Data.Lookups
 {
     public interface ICompanyLookupDataService
     {
-        Task<IEnumerable<LookupItem>> GetCompanyAsync();
+        Task<IEnumerable<LookupItem>> GetCompanyLookupAsync();
     }
 }

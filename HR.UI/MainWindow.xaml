@@ -13,6 +13,9 @@
         <DataTemplate DataType="{x:Type viewModel:CandidateDetailViewModel}">
             <view:CandidateDetailView/>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type viewModel:MeetingDetailViewModel}">
+            <view:MeetingDetailView/>
+        </DataTemplate>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -28,6 +31,9 @@
                 <MenuItem Header="New candidate" 
                           Command="{Binding CreateNewDetailCommand}"
                           CommandParameter="{x:Type viewModel:CandidateDetailViewModel}"/>
+                <MenuItem Header="New meeting" 
+                          Command="{Binding CreateNewDetailCommand}"
+                          CommandParameter="{x:Type viewModel:MeetingDetailViewModel}"/>            
             </MenuItem>
         </Menu>
         <view:NavigationView Grid.Row="1" 

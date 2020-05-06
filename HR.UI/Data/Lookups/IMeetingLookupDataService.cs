@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 
 namespace HR.UI.Data.Lookups
 {
-    public interface ICandidateLookupDataService
+    public interface IMeetingLookupDataService
     {
-        Task<IEnumerable<LookupItem>> GetCandidateLookupAsync();
+        Task<IEnumerable<LookupItem>> GetMeetingLookupAsync();
     }
 }

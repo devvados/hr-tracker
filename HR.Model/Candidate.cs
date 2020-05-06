@@ -9,6 +9,7 @@ namespace HR.Model
         public Candidate()
         {
             PhoneNumbers = new Collection<CandidatePhoneNumber>();
+            Meetings = new Collection<Meeting>();
         }
 
         public int Id { get; set; }
@@ -32,6 +33,8 @@ namespace HR.Model
         public Company Company { get; set; }
 
         public Position Position { get; set; }
+
+        public ICollection<Meeting> Meetings { get; set; }
 
         public ICollection<CandidatePhoneNumber> PhoneNumbers { get; set; }
     }

@@ -1,4 +1,5 @@
-﻿using HR.UI.Event;
+﻿using Autofac.Features.Indexed;
+using HR.UI.Event;
 using HR.UI.View.Services;
 using Prism.Commands;
 using Prism.Events;
@@ -12,16 +13,16 @@ namespace HR.UI.ViewModel
     {
         private IDetailViewModel _detailViewModel;
         private IEventAggregator _eventAggregator;
-        private Func<ICandidateDetailViewModel> _candidateDetailViewModelCreator;
+        private IIndex<string, IDetailViewModel> _detailViewModelCreator;
         private IMessageDialogService _messageDialogService;
 
         public MainViewModel(INavigationViewModel navigationViewModel,
-            Func<ICandidateDetailViewModel> candidateDetailViewModelCreator,
+            IIndex<string, IDetailViewModel> detailViewModelCreator,
             IEventAggregator eventAggregator,
             IMessageDialogService messageDialogService)
         {
             _eventAggregator = eventAggregator;
-            _candidateDetailViewModelCreator = candidateDetailViewModelCreator;
+            _detailViewModelCreator = detailViewModelCreator;
             _messageDialogService = messageDialogService;
 
             _eventAggregator.GetEvent<OpenDetailViewEvent>()
@@ -57,20 +58,16 @@ namespace HR.UI.ViewModel
         {
             if(DetailViewModel!=null && DetailViewModel.HasChanges)
             {
-                var result = _messageDialogService.ShowOkCancelDialog("You have made changes! Navigate away?", "Question");
+                var result = _messageDialogService.ShowOkCancelDialog(
+                    "You have made changes! Navigate away?", 
+                    "Question");
                 if(result  == MessageDialogResult.Cancel)
                 {
                     return;
                 }
             }
 
-            //switch between view models
-            switch (args.ViewModelName)
-            {
-                case nameof(CandidateDetailViewModel):
-                    DetailViewModel = _candidateDetailViewModelCreator();
-                    break;
-            }
+            DetailViewModel = _detailViewModelCreator[args.ViewModelName];
 
             await DetailViewModel.LoadAsync(args.Id);
         }

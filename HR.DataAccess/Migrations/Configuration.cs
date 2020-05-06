@@ -2,6 +2,7 @@
 {
     using HR.Model;
     using System;
+    using System.Collections.Generic;
     using System.Data.Entity;
     using System.Data.Entity.Migrations;
     using System.Linq;
@@ -52,6 +53,18 @@
                 {
                     Number = "+79998048624",
                     CandidateId = context.Candidates.First().Id
+                });
+
+            context.Meetings.AddOrUpdate(m => m.Title,
+                new Meeting
+                {
+                    Title = "Interview with ANTAL",
+                    Date = new DateTime(2020, 5, 25),
+                    Status = "First interview",
+                    Candidate = new List<Candidate>
+                    {
+                        context.Candidates.Single(f=>f.Name=="Vadim0" && f.LastName=="Dmitriev0")
+                    }.FirstOrDefault()
                 });
         }
     }

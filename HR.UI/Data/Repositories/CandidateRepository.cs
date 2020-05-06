@@ -16,6 +16,7 @@ namespace HR.UI.Data.Repositories
         {
             return await Context.Candidates
                 .Include(c => c.PhoneNumbers)
+                .Include(c => c.Meetings)
                 .SingleAsync(c => c.Id == candidateId);
 
             /* Visual representation of async work
@@ -26,9 +27,22 @@ namespace HR.UI.Data.Repositories
             */
         }
 
+        public async Task<bool> HasMeetingsAsync(int candidateId)
+        {
+            return await Context.Meetings.AsNoTracking()
+                .Include(m => m.Candidate)
+                .AnyAsync(m => m.CandidateId == candidateId);
+        }
+
+        public void RemoveMeeting(Meeting model)
+        {
+            Context.Meetings.Remove(model);
+        }
+
         public void RemovePhoneNumber(CandidatePhoneNumber model)
         {
             Context.CandidatePhoneNumbers.Remove(model);
         }
+
     }
 }

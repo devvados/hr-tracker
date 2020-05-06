@@ -1,0 +1,80 @@
+﻿<UserControl x:Class="HR.UI.View.MeetingDetailView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:HR.UI.View"
+             xmlns:model="clr-namespace:HR.Model;assembly=HR.Model"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition />
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Label Content="Title" Margin="10 10 10 0"/>
+        <TextBox Grid.Row="1" 
+                     Text="{Binding Meeting.Title, 
+                            Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                     Margin="10 0 10 10"/>
+
+        <Label Grid.Row="2" Content="Date" Margin="10 0 10 0"/>
+        <DatePicker Grid.Row="3" 
+                     SelectedDate="{Binding Meeting.Date, 
+                            Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                     Margin="10 0 10 10"/>
+
+        <Label Grid.Row="4" Content="Status" Margin="10 0 10 0"/>
+        <TextBox Grid.Row="5" 
+                     Text="{Binding Meeting.Status, TargetNullValue='',
+                            Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                     Margin="10 0 10 10"/>
+
+        <Grid Grid.Row="6" Margin="10">
+            <Grid.Resources>
+                <DataTemplate DataType="{x:Type model:Candidate}">
+                    <TextBlock>
+                        <Run Text="{Binding Name}"/>
+                        <Run Text="{Binding LastName}"/>
+                    </TextBlock>
+                </DataTemplate>
+            </Grid.Resources>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+
+            <Label Content="Added Candidates"/>
+            <ListView Grid.Row="1" ItemsSource="{Binding AddedCandidates}"
+                SelectedItem="{Binding SelectedAddedCandidate}"/>
+
+            <StackPanel Grid.Row="1" Grid.Column="1">
+                <Button Content="&lt;&lt;" Margin="10" Command="{Binding AddCandidateCommand}"/>
+                <Button Content="&gt;&gt;" Margin="10" Command="{Binding RemoveCandidateCommand}"/>
+            </StackPanel>
+
+            <Label Content="Available Candidates" Grid.Column="2"/>
+            <ListView Grid.Row="1" Grid.Column="2" ItemsSource="{Binding AvailableCandidates}"
+                SelectedItem="{Binding SelectedAvailableCandidate}"/>
+        </Grid>
+
+        <StackPanel Grid.Row ="8" Orientation="Horizontal">
+            <Button Content="Save" Width="125" Margin="10"
+                        Command="{Binding SaveCommand}"/>
+            <Button Content="Delete" Width="125" Margin="10"
+                        Command="{Binding DeleteCommand}"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

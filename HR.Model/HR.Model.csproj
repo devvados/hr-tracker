@@ -46,6 +46,7 @@
     <Compile Include="CandidatePhoneNumber.cs" />
     <Compile Include="Company.cs" />
     <Compile Include="LookupItem.cs" />
+    <Compile Include="Meeting.cs" />
     <Compile Include="Position.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
